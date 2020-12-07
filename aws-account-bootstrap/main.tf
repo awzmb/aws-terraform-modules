@@ -14,7 +14,6 @@ resource "aws_iam_account_alias" "alias" {
 
 module "statefile_bucket" {
   source      = "github.com/awzmb/aws-terraform-modules/aws-s3-bucket"
-  version     = "~> 3.0.0"
   bucket_name = local.bucket_name
 
   use_account_alias_prefix = false
