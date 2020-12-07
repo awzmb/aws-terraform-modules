@@ -7,8 +7,7 @@ terraform {
 }
 
 locals {
-  bucket_name    = "${var.account_alias}-${var.bucket_purpose}-${var.region}"
-  logging_bucket = "${var.account_alias}-${var.bucket_purpose}-${var.log_name}-${var.region}"
+  bucket_name = "${var.account_alias}-${var.bucket_purpose}-${var.region}"
 }
 
 resource "aws_iam_account_alias" "alias" {
@@ -16,14 +15,13 @@ resource "aws_iam_account_alias" "alias" {
 }
 
 module "statefile_bucket" {
-  source      = "awzmb/aws-terraform-modules/aws-s3-bucket"
+  source      = "github.com/awzmb/aws-terraform-modules/aws-s3-bucket"
   version     = "~> 3.0.0"
   bucket_name = local.bucket_name
 
   use_account_alias_prefix = false
 
   tags = {
-    owner     = "bundschuh.dennis@gmail.com"
     managedby = "terraform"
   }
 }
