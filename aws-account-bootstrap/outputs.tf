@@ -1,6 +1,6 @@
-output "statefile_bucket_name" {
+output "bucket_name" {
   description = "The statefile bucket name"
-  value       = local.statefile_bucket_name
+  value       = local.bucket_name
 }
 
 output "dynamodb_table" {
