@@ -6,6 +6,7 @@ terraform {
 
 locals {
   bucket_name = "${var.account_alias}-${var.bucket_purpose}-${var.region}"
+  table_name  = "${var.account_alias}-${var.bucket_purpose}-${var.region}-lock"
 }
 
 resource "aws_iam_account_alias" "alias" {
@@ -13,21 +14,19 @@ resource "aws_iam_account_alias" "alias" {
 }
 
 module "statefile_bucket" {
-  source      = "github.com/awzmb/aws-terraform-modules/aws-s3-bucket"
-  bucket_name = local.bucket_name
+  source = "github.com/awzmb/aws-terraform-modules/aws-s3-bucket"
 
+  bucket_name              = local.bucket_name
   use_account_alias_prefix = false
-
-  tags = {
-    managedby = "terraform"
-  }
+  tags                     = var.tags
 }
 
 resource "aws_dynamodb_table" "statefile_lock" {
-  name           = var.dynamodb_table_name
+  name           = local.table_name
   hash_key       = "LockID"
   read_capacity  = 2
   write_capacity = 2
+  tags           = var.tags
 
   server_side_encryption {
     enabled = true
@@ -37,6 +36,4 @@ resource "aws_dynamodb_table" "statefile_lock" {
     name = "LockID"
     type = "S"
   }
-
-  tags = var.dynamodb_table_tags
 }
