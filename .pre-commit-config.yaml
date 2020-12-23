@@ -7,10 +7,10 @@ repos:
       - id: detect-private-key
       - id: trailing-whitespace
 
-  - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.23.2
-    hooks:
-      - id: markdownlint
+  #- repo: git://github.com/igorshubovych/markdownlint-cli
+    #rev: v0.23.2
+    #hooks:
+      #- id: markdownlint
 
   - repo: git://github.com/antonbabenko/pre-commit-terraform
     rev: v1.31.0
