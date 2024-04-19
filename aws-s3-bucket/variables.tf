@@ -11,8 +11,10 @@ variable "use_account_alias_prefix" {
 
 variable "tags" {
   description = "A mapping of tags to assign to the bucket."
-  default     = {}
-  type        = map(string)
+  default = {
+    managedby = "terraform"
+  }
+  type = map(string)
 }
 
 variable "enable_bucket_force_destroy" {

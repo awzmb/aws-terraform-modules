@@ -1,0 +1,55 @@
+node: &semantic-release
+  step:
+    name: semantic-release
+    image:
+      name: node:20
+      entrypoint:
+        - '/usr/bin/env'
+        - 'PATH=$PATH:/usr/local/bin'
+    caches:
+      - node
+    script:
+      # NOTE: you have to initialize tagging with 'git tag 1.0.0' before the
+      # first pipeline run and 'git push --tags'
+      # https://support.atlassian.com/bitbucket-cloud/docs/push-back-to-your-repository/
+      - git config --global push.default simple
+      # make sure to add SEMANTIC_RELEASE_APP_USERNAME and SEMANTIC_RELEASE_APP_SECRET
+      # as workspace variable and check this in case we have authorization issues
+      # this is currently being done with my account (bundschuhd)
+      - git remote set-url origin https://${SEMANTIC_RELEASE_APP_USERNAME}:${SEMANTIC_RELEASE_APP_SECRET}@bitbucket.org/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}
+      # run terraform-docs
+      - curl -sSLo ./terraform-docs.tar.gz https://terraform-docs.io/dl/v0.17.0/terraform-docs-v0.17.0-$(uname)-amd64.tar.gz
+      - tar -xzf terraform-docs.tar.gz
+      - chmod +x terraform-docs
+      - mv terraform-docs /usr/local/bin/terraform-docs
+      - |
+        for directory in $(find . -type d ! -path "./git/*" | grep -v 'example' | grep -v '.git' | grep -v 'shared-constants');
+        do
+          if [ -f $directory/main.tf ]; then
+            terraform-docs md $directory > $directory/README.md
+          fi
+        done
+      - git add README.md
+      # run semantic-release
+      - npm install npx semantic-release
+      - npm install @semantic-release/git @semantic-release/changelog
+      - npx semantic-release
+
+
+checkov: &checkov
+  step:
+    name: checkov
+    image:
+      name: bridgecrew/checkov:latest
+      entrypoint:
+        - '/usr/bin/env'
+        - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+    script:
+      - checkov -d .
+
+pipelines:
+  branches:
+    main:
+      - <<: *semantic-release
+    default:
+      - <<: *checkov

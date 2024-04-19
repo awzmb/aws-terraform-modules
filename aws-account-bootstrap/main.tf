@@ -1,6 +1,6 @@
 terraform {
   required_providers {
-    aws = "~> 3.0"
+    aws = "> 3.0"
   }
 }
 
@@ -9,12 +9,8 @@ locals {
   table_name  = "${var.account_alias}-${var.bucket_purpose}-${var.region}-lock"
 }
 
-resource "aws_iam_account_alias" "alias" {
-  account_alias = var.account_alias
-}
-
 module "statefile_bucket" {
-  source = "github.com/awzmb/aws-terraform-modules/aws-s3-bucket"
+  source = "git@bitbucket.org:metamorphant/aws-s3-bucket.git"
 
   bucket_name              = local.bucket_name
   use_account_alias_prefix = false
@@ -36,4 +32,8 @@ resource "aws_dynamodb_table" "statefile_lock" {
     name = "LockID"
     type = "S"
   }
+}
+
+data "aws_iam_policy" "iam_policy_administrator_access" {
+  name = "AdministratorAccess"
 }
